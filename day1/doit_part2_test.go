@@ -1,7 +1,7 @@
 package main
 
 import (
-	"adventcodingchallenge_2021/utility"
+	"adventcodingchallenge_2022/utility"
 	"reflect"
 	"testing"
 )

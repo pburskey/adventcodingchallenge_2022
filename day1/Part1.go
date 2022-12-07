@@ -27,5 +27,5 @@ func (alg *Part1) Process(data []string) (error, interface{}) {
 		}
 
 	}
-	return nil, alg
+	return nil, alg.total
 }

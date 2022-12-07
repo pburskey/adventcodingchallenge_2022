@@ -1,7 +1,7 @@
 package main
 
 import (
-	"adventcodingchallenge_2021/utility"
+	"adventcodingchallenge_2022/utility"
 	"reflect"
 	"testing"
 )
@@ -20,7 +20,7 @@ func TestSolutionPart1WithSampleDataFile(t *testing.T) {
 			args: args{
 				fileName: "data_test.txt",
 			},
-			want: 7,
+			want: 24000,
 		},
 	}
 	for _, tt := range tests {
