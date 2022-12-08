@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const day = "2"
+const day = "3"
 
 func main() {
 

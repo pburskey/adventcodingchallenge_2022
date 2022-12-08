@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -108,4 +109,62 @@ func IsLower(s string) bool {
 		}
 	}
 	return true
+}
+
+func IntersectionOf(a string, b string) []rune {
+
+	aChars := strings.Split(a, "")
+	bChars := strings.Split(b, "")
+
+	sort.Strings(aChars)
+	sort.Strings(bChars)
+
+	aChars = RemoveDuplicates(aChars)
+	bChars = RemoveDuplicates(bChars)
+
+	aRunes := []rune(strings.Join(aChars, ""))
+	bRunes := []rune(strings.Join(bChars, ""))
+
+	var commons []rune
+	intersectionMap := make(map[rune]int)
+
+	for _, aRune := range aRunes {
+		intersectionMap[aRune]++
+	}
+
+	for _, aRune := range bRunes {
+		intersectionMap[aRune]++
+	}
+
+	for key, element := range intersectionMap {
+		if element > 1 {
+			commons = append(commons, key)
+		}
+	}
+	return commons
+}
+
+type SliceType interface {
+	~string | ~int | ~float64 // add more *comparable* types as needed
+}
+
+func RemoveDuplicates[T SliceType](s []T) []T {
+	if len(s) < 1 {
+		return s
+	}
+
+	// sort
+	sort.SliceStable(s, func(i, j int) bool {
+		return s[i] < s[j]
+	})
+
+	prev := 1
+	for curr := 1; curr < len(s); curr++ {
+		if s[curr-1] != s[curr] {
+			s[prev] = s[curr]
+			prev++
+		}
+	}
+
+	return s[:prev]
 }

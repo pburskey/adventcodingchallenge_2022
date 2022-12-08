@@ -1,36 +1,87 @@
 package main
 
 import (
-	"adventcodingchallenge_2022/utility"
-	"strconv"
+	"strings"
 )
 
 type Part2 struct {
-	answer int
+	total int
 }
 
-func (alg *Part2) Process(data []string) (error, interface{}) {
+func (alg *Part2) play(opponentPlay string, youPlay string) (youScore int) {
+	var opponent KindOfPiece
+	var you KindOfPiece
 
-	currentTotal := 0
-	var totals []int
-	for _, aRow := range data {
+	var youShouldWin, youShouldDraw, youShouldLose bool
+	youScore = 0
 
-		if aRow == "" {
-			totals = append(totals, currentTotal)
-
-			currentTotal = 0
-
-		} else {
-			aNumber, _ := strconv.Atoi(aRow)
-			currentTotal += aNumber
-		}
-
+	if opponentPlay == "A" {
+		opponent = Rock
+	} else if opponentPlay == "B" {
+		opponent = Paper
+	} else if opponentPlay == "C" {
+		opponent = Scizzors
 	}
 
-	totals = utility.OrderNumbersSortReversed(totals)
-	alg.answer += totals[0]
-	alg.answer += totals[1]
-	alg.answer += totals[2]
-	return nil, alg
+	if youPlay == "X" {
+		youShouldLose = true
+	} else if youPlay == "Y" {
+		youShouldDraw = true
+	} else if youPlay == "Z" {
+		youShouldWin = true
+	}
+
+	if youShouldDraw {
+		you = opponent
+	} else if youShouldLose {
+		if opponent == Rock {
+			you = Scizzors
+		} else if opponent == Scizzors {
+			you = Paper
+		} else if opponent == Paper {
+			you = Rock
+		}
+	} else if youShouldWin {
+		if opponent == Rock {
+			you = Paper
+		} else if opponent == Scizzors {
+			you = Rock
+		} else if opponent == Paper {
+			you = Scizzors
+		}
+	}
+
+	if you == Rock {
+		youScore += 1
+	} else if you == Paper {
+		youScore += 2
+	} else if you == Scizzors {
+		youScore += 3
+	}
+
+	if youShouldWin {
+		youScore += 6
+	} else if youShouldLose {
+		youScore += 0
+	} else if youShouldDraw {
+		youScore += 3
+	}
+
+	return
+}
+func (alg *Part2) Process(data []string) (error, interface{}) {
+
+	for _, aRow := range data {
+
+		words := strings.Fields(aRow)
+		opponent := words[0]
+		you := words[1]
+
+		yourScore := alg.play(opponent, you)
+
+		alg.total += yourScore
+
+	}
+	return nil, alg.total
 
 }
