@@ -2,7 +2,6 @@ package main
 
 import (
 	"adventcodingchallenge_2022/utility"
-	"unicode"
 )
 
 type Part1 struct {
@@ -16,15 +15,7 @@ type Sack struct {
 
 func initializePriorities() map[rune]int {
 
-	priorities := make(map[rune]int)
-	index := 1
-	for aLowerCaseLetter := 'a'; aLowerCaseLetter <= 'z'; aLowerCaseLetter++ {
-		aCapitalLetter := unicode.ToUpper(aLowerCaseLetter)
-		priorities[aLowerCaseLetter] = index
-		priorities[aCapitalLetter] = 26 + index
-		index++
-	}
-
+	priorities := utility.AssignNumbersToLetters(1, 26)
 	return priorities
 
 }

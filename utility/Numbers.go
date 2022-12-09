@@ -4,6 +4,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"unicode"
 )
 
 func Average(numbers []int) int {
@@ -117,4 +118,55 @@ func SliceToInt(aSlice []int) int {
 		power *= 10
 	}
 	return result
+}
+
+func AssignNumbersToLetters(lowerCaseStart int, upperCaseStart int) map[rune]int {
+
+	priorities := make(map[rune]int)
+	index := lowerCaseStart
+	for aLowerCaseLetter := 'a'; aLowerCaseLetter <= 'z'; aLowerCaseLetter++ {
+		aCapitalLetter := unicode.ToUpper(aLowerCaseLetter)
+		priorities[aLowerCaseLetter] = index
+		priorities[aCapitalLetter] = upperCaseStart + index
+		index++
+	}
+
+	return priorities
+
+}
+
+func SubSetPresent(a []int, b []int) bool {
+	aLeast, aMax := LeastAndMax(a)
+	bLeast, bMax := LeastAndMax(b)
+
+	if bLeast >= aLeast && bMax <= aMax {
+		return true
+	} else if aLeast >= bLeast && aMax <= bMax {
+		return true
+	}
+
+	return false
+
+}
+
+func IntersectionOfNumbers(numberArrays [][]int) []int {
+
+	var commons []int
+	intersectionMap := make(map[int]int)
+
+	outerLength := len(numberArrays)
+
+	for i := 0; i < outerLength; i++ {
+		for j := 0; j < len(numberArrays[i]); j++ {
+			aNumber := numberArrays[i][j]
+			intersectionMap[aNumber]++
+		}
+	}
+
+	for key, element := range intersectionMap {
+		if element == outerLength {
+			commons = append(commons, key)
+		}
+	}
+	return commons
 }

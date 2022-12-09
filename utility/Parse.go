@@ -113,10 +113,10 @@ func IsLower(s string) bool {
 
 func IntersectionOfTwoStrings(a string, b string) []rune {
 
-	return IntersectionOf([]string{a, b})
+	return IntersectingCharaactersOfStrings([]string{a, b})
 }
 
-func IntersectionOf(arrayOfStrings []string) []rune {
+func IntersectingCharaactersOfStrings(arrayOfStrings []string) []rune {
 
 	var commons []rune
 	intersectionMap := make(map[rune]int)
