@@ -111,33 +111,30 @@ func IsLower(s string) bool {
 	return true
 }
 
-func IntersectionOf(a string, b string) []rune {
+func IntersectionOfTwoStrings(a string, b string) []rune {
 
-	aChars := strings.Split(a, "")
-	bChars := strings.Split(b, "")
+	return IntersectionOf([]string{a, b})
+}
 
-	sort.Strings(aChars)
-	sort.Strings(bChars)
-
-	aChars = RemoveDuplicates(aChars)
-	bChars = RemoveDuplicates(bChars)
-
-	aRunes := []rune(strings.Join(aChars, ""))
-	bRunes := []rune(strings.Join(bChars, ""))
+func IntersectionOf(arrayOfStrings []string) []rune {
 
 	var commons []rune
 	intersectionMap := make(map[rune]int)
 
-	for _, aRune := range aRunes {
-		intersectionMap[aRune]++
-	}
+	for _, aString := range arrayOfStrings {
+		aChars := strings.Split(aString, "")
+		sort.Strings(aChars)
+		aChars = RemoveDuplicates(aChars)
+		aRunes := []rune(strings.Join(aChars, ""))
 
-	for _, aRune := range bRunes {
-		intersectionMap[aRune]++
+		for _, aRune := range aRunes {
+			intersectionMap[aRune]++
+		}
+
 	}
 
 	for key, element := range intersectionMap {
-		if element > 1 {
+		if element == len(arrayOfStrings) {
 			commons = append(commons, key)
 		}
 	}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"adventcodingchallenge_2022/utility"
-	"fmt"
 	"unicode"
 )
 
@@ -11,9 +10,8 @@ type Part1 struct {
 }
 
 type Sack struct {
-	a          string
-	b          string
-	priorities map[rune]int
+	a string
+	b string
 }
 
 func initializePriorities() map[rune]int {
@@ -31,20 +29,17 @@ func initializePriorities() map[rune]int {
 
 }
 
-func (sack *Sack) priority(aRune rune) int {
-	if sack.priorities == nil {
-		sack.priorities = initializePriorities()
-	}
+func (sack *Sack) priority(priorities map[rune]int, aRune rune) int {
 
-	aPriority := sack.priorities[aRune]
-	fmt.Println(fmt.Sprintf("Rune %U Priority: %d", aRune, aPriority))
+	aPriority := priorities[aRune]
+	//fmt.Println(fmt.Sprintf("Rune %U Priority: %d", aRune, aPriority))
 	return aPriority
 
 }
 
 func (sack *Sack) commonItems() []rune {
 
-	commonItems := utility.IntersectionOf(sack.a, sack.b)
+	commonItems := utility.IntersectionOfTwoStrings(sack.a, sack.b)
 
 	return commonItems
 
@@ -73,13 +68,13 @@ func (alg *Part1) Process(data []string) (error, int) {
 		middle := len(aRow) / 2
 		firstHalf := aRow[0:middle]
 		secondHalf := aRow[middle:len(aRow)]
-		sack := &Sack{a: firstHalf, b: secondHalf, priorities: priorities}
+		sack := &Sack{a: firstHalf, b: secondHalf}
 
 		commonItems := sack.commonItems()
 		if commonItems != nil {
 			for _, aRune := range commonItems {
 
-				aPriority := sack.priority(aRune)
+				aPriority := sack.priority(priorities, aRune)
 				alg.total += aPriority
 			}
 		}
