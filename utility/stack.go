@@ -10,6 +10,14 @@ func NewSimpleStringStack() *SimpleStringStack {
 }
 
 func (s *SimpleStringStack) Reverse() []string {
+	inputLen := len(s.stack)
+	inputMid := inputLen / 2
+
+	for i := 0; i < inputMid; i++ {
+		j := inputLen - i - 1
+
+		s.stack[i], s.stack[j] = s.stack[j], s.stack[i]
+	}
 	return s.stack
 }
 

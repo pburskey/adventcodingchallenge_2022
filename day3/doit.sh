@@ -1,2 +1,2 @@
 go build
-./day2
+./day3
