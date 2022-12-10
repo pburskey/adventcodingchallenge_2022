@@ -67,6 +67,10 @@ func parseInputFileIntoNumberRows(path string) ([]int, error) {
 	return data, nil
 }
 
+func ParseInputStringIntoArray(aString string) []string {
+	return strings.Split(aString, "")
+}
+
 func ParseDayForInputIntoStringRows(day string, path string) ([]string, error) {
 	return ParseInputFileIntoStringRows(filepath.Join(assembleFilePathToDay(day), path))
 }
@@ -113,10 +117,10 @@ func IsLower(s string) bool {
 
 func IntersectionOfTwoStrings(a string, b string) []rune {
 
-	return IntersectingCharaactersOfStrings([]string{a, b})
+	return IntersectingCharactersOfStrings([]string{a, b})
 }
 
-func IntersectingCharaactersOfStrings(arrayOfStrings []string) []rune {
+func IntersectingCharactersOfStrings(arrayOfStrings []string) []rune {
 
 	var commons []rune
 	intersectionMap := make(map[rune]int)
@@ -145,10 +149,13 @@ type SliceType interface {
 	~string | ~int | ~float64 // add more *comparable* types as needed
 }
 
-func RemoveDuplicates[T SliceType](s []T) []T {
-	if len(s) < 1 {
-		return s
+func RemoveDuplicates[T SliceType](original []T) []T {
+	if len(original) < 1 {
+		return original
 	}
+
+	s := make([]T, len(original))
+	copy(s, original)
 
 	// sort
 	sort.SliceStable(s, func(i, j int) bool {
@@ -164,4 +171,38 @@ func RemoveDuplicates[T SliceType](s []T) []T {
 	}
 
 	return s[:prev]
+}
+
+func FindDuplicates[T SliceType](original []T) []T {
+	if len(original) < 1 {
+		return original
+	}
+
+	s := make([]T, len(original))
+	copy(s, original)
+
+	// sort
+	sort.SliceStable(s, func(i, j int) bool {
+		return s[i] < s[j]
+	})
+
+	var emptyValue T
+
+	var found []T
+	var previous T
+	for current := 0; current < len(s); current++ {
+		currentValue := s[current]
+		if previous != emptyValue {
+			if previous == currentValue {
+				found = append(found, currentValue)
+			}
+		}
+		previous = currentValue
+	}
+	//a,a,b,b,c
+
+	noDuplicates := RemoveDuplicates(found)
+	return noDuplicates
+
+	return s
 }
