@@ -14,8 +14,6 @@ func main() {
 		panic(err)
 	}
 
-	data = utility.ParseInputStringIntoArray(data[0])
-
 	_, solution_a := solution_part_a(data)
 	fmt.Println(fmt.Sprintf("Result Part 1: %d", solution_a))
 
