@@ -70,10 +70,10 @@ func (fs *FileSystem) list(name string) {
 	words := strings.Split(name, " ")
 	if strings.EqualFold(words[0], "dir") {
 		name := words[1]
-		anExistingFile := fs.currentDirectory().fileOfKindNamed(DIRECTORY, name)
+		anExistingFile := fs.getCurrentDirectory().fileOfKindNamed(DIRECTORY, name)
 		if anExistingFile == nil {
 			// this is a directory
-			fs.currentDirectory().addFile(&File{
+			fs.getCurrentDirectory().addFile(&File{
 				name:  name,
 				size:  0,
 				kind:  DIRECTORY,
@@ -88,9 +88,9 @@ func (fs *FileSystem) list(name string) {
 		fileSize, _ := strconv.Atoi(words[0])
 
 		name := words[1]
-		anExistingFile := fs.currentDirectory().fileOfKindNamed(DIRECTORY, name)
+		anExistingFile := fs.getCurrentDirectory().fileOfKindNamed(DIRECTORY, name)
 		if anExistingFile == nil {
-			fs.currentDirectory().addFile(&File{
+			fs.getCurrentDirectory().addFile(&File{
 				name:  words[1],
 				size:  fileSize,
 				kind:  FILE,
@@ -105,58 +105,92 @@ func (fs *FileSystem) list(name string) {
 }
 
 type FileSystem struct {
-	path []*File
+	//path             []*File
+	currentDirectory *File
+	root             *File
+	offset           int
 }
 
 func (fs *FileSystem) addToPath(aFile *File) *FileSystem {
-	fs.path = append(fs.path, aFile)
+	//fs.path = append(fs.path, aFile)
+	fs.currentDirectory = aFile
+
+	//if fs.getCurrentDirectory().name != fs.currentDirectory.name {
+	//	panic("Current directory out of sync")
+	//}
+	fs.offset++
+	return fs
+}
+
+func (fs *FileSystem) changeToRoot() *FileSystem {
+
+	fs.currentDirectory = fs.root
+	//fs.path = fs.path[0:1]
+	//if fs.getCurrentDirectory().name != fs.currentDirectory.name {
+	//	panic("Current directory out of sync")
+	//}
+	fs.offset = 0
+
 	return fs
 }
 
 func (fs *FileSystem) goUpOneDirectory() *FileSystem {
-	fs.path = fs.path[:len(fs.path)-1]
+	owner := fs.currentDirectory.owner
+	fs.currentDirectory = owner
+	fs.offset--
+	//fs.path = fs.path[:len(fs.path)-1]
+	//if fs.getCurrentDirectory().name != fs.currentDirectory.name {
+	//	panic("Current directory out of sync")
+	//}
+
 	return fs
 }
 
-func (fs *FileSystem) currentDirectory() *File {
-	currentDirectory := fs.path[len(fs.path)-1]
-	return currentDirectory
+func (fs *FileSystem) getCurrentDirectory() *File {
+	//currentDirectory := fs.path[len(fs.path)-1]
+	//if currentDirectory.name != fs.currentDirectory.name {
+	//	panic("Current directory out of sync")
+	//}
+	return fs.currentDirectory
 }
 
 func (fs *FileSystem) changeDirectory(name string) *FileSystem {
 
-	currentDirectory := fs.currentDirectory()
+	startingOffSet := fs.offset
+	expectation := 0
+	currentDirectory := fs.getCurrentDirectory()
 	if currentDirectory != nil {
-		if strings.EqualFold(currentDirectory.name, name) {
-			// no need to change
+
+		if strings.EqualFold("..", name) {
+			fs.goUpOneDirectory()
+			expectation = startingOffSet - 1
+		} else if strings.EqualFold("/", name) {
+			fs.changeToRoot()
+			expectation = 0
+
 		} else {
-			if strings.EqualFold("..", name) {
-				fs.goUpOneDirectory()
-			} else if strings.EqualFold("/", name) {
-				fs.path = fs.path[0:1]
+			directoryToMoveTo := currentDirectory.fileOfKindNamed(DIRECTORY, name)
 
-			} else {
-				directoryToMoveTo := currentDirectory.fileOfKindNamed(DIRECTORY, name)
-
-				if directoryToMoveTo == nil {
-					panic(fmt.Sprintf("Unable to find directory: %s", name))
-				} else if directoryToMoveTo.owner.name != currentDirectory.name {
-					panic(fmt.Sprintf("Directory name mismatch: %s", name))
-				}
-				fs.addToPath(directoryToMoveTo)
-			}
-
+			fs.addToPath(directoryToMoveTo)
+			expectation = startingOffSet + 1
 		}
+
 	}
+
+	if expectation != fs.offset {
+		panic("Offset difference")
+	}
+
 	return fs
 }
 
-func (fs *FileSystem) executeCommand(command CommandType, word string) {
+func (fs *FileSystem) executeCommand(command CommandType, word string) *FileSystem {
 	if command == CD {
 		fs.changeDirectory(word)
 	} else if command == LS {
 		fs.list(word)
 	}
+	return fs
 }
 
 type Part1 struct {
@@ -174,7 +208,7 @@ const (
 func parse(data []string) (error, *FileSystem) {
 
 	rootFile := &File{name: "/", kind: DIRECTORY, size: 0, owner: nil}
-	fileSystem := &FileSystem{path: []*File{rootFile}}
+	fileSystem := &FileSystem{root: rootFile, currentDirectory: rootFile}
 
 	var lastCommand CommandType
 	lastListCommandCounter := 0
@@ -187,9 +221,9 @@ func parse(data []string) (error, *FileSystem) {
 					if aWord == "$" {
 						lastCommand = UNKNOWN
 
-					} else if lastCommand == UNKNOWN && aWord == "cd" {
+					} else if lastCommand == UNKNOWN && strings.EqualFold(aWord, "cd") {
 						lastCommand = CD
-					} else if lastCommand == UNKNOWN && aWord == "ls" {
+					} else if lastCommand == UNKNOWN && strings.EqualFold(aWord, "ls") {
 						lastCommand = LS
 						lastListCommandCounter = 0
 					} else {
@@ -199,7 +233,7 @@ func parse(data []string) (error, *FileSystem) {
 			} else if lastCommand == LS {
 				fileSystem.executeCommand(lastCommand, row)
 				lastListCommandCounter++
-				if len(fileSystem.currentDirectory().files) != lastListCommandCounter {
+				if len(fileSystem.getCurrentDirectory().files) != lastListCommandCounter {
 					panic("Files out of sync")
 				}
 
@@ -215,7 +249,7 @@ func (alg *Part1) Process(data []string) (error, interface{}) {
 	_, fileSystem := parse(data)
 	if fileSystem != nil {
 		directories := make([]File, 0)
-		rootFile := fileSystem.changeDirectory("/").currentDirectory()
+		rootFile := fileSystem.changeDirectory("/").getCurrentDirectory()
 		rootFile.collectDirectoriesLimitedInSizeTo(100000, &directories)
 		totalSize := 0
 		if directories != nil {

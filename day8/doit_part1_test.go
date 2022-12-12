@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestSolutionPart2WithSampleDataFile(t *testing.T) {
+func TestSolutionPart1WithSampleDataFile(t *testing.T) {
 	type args struct {
 		fileName string
 	}
@@ -20,7 +20,7 @@ func TestSolutionPart2WithSampleDataFile(t *testing.T) {
 			args: args{
 				fileName: "data_test.txt",
 			},
-			want: 24933642,
+			want: 95437,
 		},
 	}
 	for _, tt := range tests {
@@ -30,7 +30,7 @@ func TestSolutionPart2WithSampleDataFile(t *testing.T) {
 				t.Error(err)
 			}
 
-			if _, got := solution_part_b(inputData); !reflect.DeepEqual(got, tt.want) {
+			if _, got := solution_part_a(inputData); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Solution() = %v, want %v", got, tt.want)
 			}
 		})
