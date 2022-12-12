@@ -27,7 +27,6 @@ type Part1 struct {
 func parse(data []string) []*Command {
 
 	commands := make([]*Command, 0)
-	gridData := utility.ParseRowsToInts(data)
 	for _, aRow := range data {
 		words := strings.Split(aRow, " ")
 		var direction Orientation
@@ -55,29 +54,28 @@ func (alg *Part1) Process(data []string) (error, interface{}) {
 
 	var coordinates []*utility.Coordinate
 
-	coordinate := &utility.Coordinate{
+	coordinates = append(coordinates, &utility.Coordinate{
 		X: 0,
 		Y: 0,
-	}
-
-	coordinates = append(coordinates, coordinate)
+	})
 
 	for _, aCommand := range commands {
 
 		previousCoordinate := coordinates[len(coordinates)-1]
-		currentCoordinate := &utility.Coordinate{
+		coordinate := &utility.Coordinate{
 			X: previousCoordinate.X,
 			Y: previousCoordinate.Y,
 		}
 		if aCommand.direction == Up {
-			currentCoordinate.X += aCommand.move
+			coordinate.X += aCommand.move
 		} else if aCommand.direction == Down {
-			currentCoordinate.X -= aCommand.move
+			coordinate.X -= aCommand.move
 		} else if aCommand.direction == Right {
-			currentCoordinate.Y += aCommand.move
+			coordinate.Y += aCommand.move
 		} else if aCommand.direction == Left {
-			currentCoordinate.Y -= aCommand.move
+			coordinate.Y -= aCommand.move
 		}
+		coordinates = append(coordinates, coordinate)
 
 	}
 
