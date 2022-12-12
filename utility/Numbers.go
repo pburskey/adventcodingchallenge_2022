@@ -34,9 +34,13 @@ func Median(numbers []int) float32 {
 }
 
 func LeastAndMax(numbers []int) (int, int) {
+	if numbers == nil {
+		numbers = make([]int, 0)
+	}
 
 	least := numbers[0]
 	max := numbers[0]
+
 	for _, aNumber := range numbers {
 		if aNumber < least {
 			least = aNumber
