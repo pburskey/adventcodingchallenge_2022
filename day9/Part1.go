@@ -24,9 +24,9 @@ type Part1 struct {
 	answer int
 }
 
-func parse(data []string) []*Command {
+func parse(data []string) (commands []*Command, coordinates []*utility.Coordinate) {
 
-	commands := make([]*Command, 0)
+	//commands := make([]*Command, 0)
 	for _, aRow := range data {
 		words := strings.Split(aRow, " ")
 		var direction Orientation
@@ -46,13 +46,8 @@ func parse(data []string) []*Command {
 		})
 
 	}
-	return commands
-}
 
-func (alg *Part1) Process(data []string) (error, interface{}) {
-	commands := parse(data)
-
-	var coordinates []*utility.Coordinate
+	//var coordinates []*utility.Coordinate
 
 	coordinates = append(coordinates, &utility.Coordinate{
 		X: 0,
@@ -78,6 +73,12 @@ func (alg *Part1) Process(data []string) (error, interface{}) {
 		coordinates = append(coordinates, coordinate)
 
 	}
+	return
+}
+
+func (alg *Part1) Process(data []string) (error, interface{}) {
+	commands, coordinates := parse(data)
+	grid := &utility.Grid{}
 
 	return nil, alg.answer
 }
