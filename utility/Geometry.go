@@ -127,3 +127,118 @@ func PrettyPrintInts(data [][]int) {
 		fmt.Printf("\n")
 	}
 }
+
+// x = row
+// y = column
+type Grid struct {
+	data [][]int
+}
+
+func (g *Grid) SetData(someData [][]int) *Grid {
+	g.data = someData
+	return g
+}
+
+func (g *Grid) GetData() [][]int {
+	return g.data
+}
+
+func (g *Grid) Perimeter() int {
+	outside := len(g.data)
+	outside = (outside * 2) + ((outside - 2) * 2)
+	return outside
+}
+
+func (g *Grid) IsPositionAtVisibleFromOutside(x int, y int) bool {
+	visible := false
+	if x == 0 || y == 0 {
+		visible = true
+	} else if x == len(g.data)-1 {
+		visible = true
+	} else if y == len(g.data[0])-1 {
+		visible = true
+	} else {
+		targetValue := g.data[x][y]
+		above, below, left, right := g.CollectElementsFromPosition(x, y)
+
+		least, max := LeastAndMax(above)
+		if least < targetValue && max < targetValue {
+			visible = visible || true
+		}
+
+		least, max = LeastAndMax(below)
+		if least < targetValue && max < targetValue {
+			visible = visible || true
+		}
+
+		least, max = LeastAndMax(right)
+		if least < targetValue && max < targetValue {
+			visible = visible || true
+		}
+
+		least, max = LeastAndMax(left)
+		if least < targetValue && max < targetValue {
+			visible = visible || true
+
+		}
+	}
+
+	return visible
+}
+
+func (g *Grid) CollectElementsFromPosition(x int, y int) (above []int, below []int, left []int, right []int) {
+
+	above = g.collectElementsAbovePosition(x, y)
+
+	below = g.collectElementsBelowPosition(x, y)
+
+	right = g.collectElementsRightOfPosition(x, y)
+
+	left = g.collectElementsLeftOfPosition(x, y)
+
+	return
+}
+
+func (g *Grid) collectElementsAbovePosition(x int, y int) []int {
+
+	data := make([]int, 0)
+	for xx := x - 1; xx >= 0; xx-- {
+		data = append(data, g.data[xx][y])
+	}
+
+	return data
+
+}
+
+func (g *Grid) collectElementsBelowPosition(x int, y int) []int {
+
+	data := make([]int, 0)
+	for xx := x + 1; xx < len(g.data); xx++ {
+		data = append(data, g.data[xx][y])
+	}
+
+	return data
+
+}
+
+func (g *Grid) collectElementsRightOfPosition(x int, y int) []int {
+
+	data := make([]int, 0)
+	for yy := y + 1; yy < len(g.data[x]); yy++ {
+		data = append(data, g.data[x][yy])
+	}
+
+	return data
+
+}
+
+func (g *Grid) collectElementsLeftOfPosition(x int, y int) []int {
+
+	data := make([]int, 0)
+	for yy := y - 1; yy >= 0; yy-- {
+		data = append(data, g.data[x][yy])
+	}
+
+	return data
+
+}
