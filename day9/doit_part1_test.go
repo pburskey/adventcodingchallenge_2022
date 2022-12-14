@@ -22,6 +22,13 @@ func TestSolutionPart1WithSampleDataFile(t *testing.T) {
 			},
 			want: 13,
 		},
+		{
+			name: "Sunny Day 1",
+			args: args{
+				fileName: "input.txt",
+			},
+			want: 6357,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

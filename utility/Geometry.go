@@ -1,15 +1,114 @@
 package utility
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Coordinate struct {
-	X int
-	Y int
+	X     int
+	Y     int
+	Value interface{}
+}
+
+func (c *Coordinate) DistanceBetween(another *Coordinate) *Coordinate {
+
+	xDifference := AbsDiffInt(c.X, another.X)
+	yDifference := AbsDiffInt(c.Y, another.Y)
+
+	return &Coordinate{X: xDifference, Y: yDifference}
+}
+
+func (c *Coordinate) IsAdjacent(another *Coordinate) bool {
+	adjacent := false
+	xDifference := AbsDiffInt(c.X, another.X)
+	yDifference := AbsDiffInt(c.Y, another.Y)
+
+	adjacent = xDifference <= 1 && yDifference <= 1
+
+	return adjacent
+}
+
+func (c *Coordinate) IsInSamePositionAs(other *Coordinate) bool {
+	same := false
+	if other != nil {
+		same = c.X == other.X && c.Y == other.Y
+	}
+	return same
+}
+
+func (c *Coordinate) IsInOneOfPositions(otherPositions []*Coordinate) bool {
+	same := false
+	if otherPositions != nil {
+		for _, position := range otherPositions {
+			if position != nil && position.IsInSamePositionAs(c) {
+				return true
+			}
+		}
+	}
+	return same
+}
+
+func (c *Coordinate) IsInSameXAs(other *Coordinate) bool {
+	same := false
+	if other != nil {
+		same = c.X == other.X
+	}
+	return same
+}
+
+func (c *Coordinate) IsInSameYAs(other *Coordinate) bool {
+	same := false
+	if other != nil {
+		same = c.Y == other.Y
+	}
+	return same
+}
+
+func (c *Coordinate) MoveTo(targetCoordinate *Coordinate) {
+	if targetCoordinate != nil {
+		c.X = targetCoordinate.X
+		c.Y = targetCoordinate.Y
+	}
+
+}
+
+func Boundaries(coordinates []*Coordinate) (minX int, minY int, maxX int, maxY int) {
+	for _, aCoordinate := range coordinates {
+		if aCoordinate.X > maxX {
+			maxX = aCoordinate.X
+		}
+		if aCoordinate.X < minX {
+			minX = aCoordinate.X
+		}
+
+		if aCoordinate.Y > maxY {
+			maxY = aCoordinate.Y
+		}
+		if aCoordinate.Y < minY {
+			minY = aCoordinate.Y
+		}
+
+	}
+	return
 }
 
 type CoordinateRange struct {
 	Start *Coordinate
 	End   *Coordinate
+}
+
+func (c *CoordinateRange) FilterStartAndEnd(coordinates []*Coordinate) []*Coordinate {
+	filteredCoordinates := make([]*Coordinate, 0)
+	if coordinates != nil {
+		aSlice := []*Coordinate{c.Start, c.End}
+		for _, aCoordinate := range coordinates {
+			if !aCoordinate.IsInOneOfPositions(aSlice) {
+				filteredCoordinates = append(filteredCoordinates, aCoordinate)
+			}
+		}
+	}
+	return filteredCoordinates
 }
 
 func (c *CoordinateRange) DetermineCoordinatesInRange(includeDiag bool) []*Coordinate {
@@ -48,14 +147,21 @@ func (c *CoordinateRange) DetermineCoordinatesInRange(includeDiag bool) []*Coord
 			OrderNumbersStartingWithAndEndingWith(yNumbers, c.Start.Y, c.End.Y)
 
 			for j := 0; j < len(xNumbers); j++ {
+				jx := j
+				jy := j
+				if jx >= len(xNumbers) {
+					jx = len(xNumbers) - 1
+				}
+				if jy >= len(yNumbers) {
+					jy = len(yNumbers) - 1
+				}
 				aCoordinate := &Coordinate{
-					X: xNumbers[j],
-					Y: yNumbers[j],
+					X: xNumbers[jx],
+					Y: yNumbers[jy],
 				}
 				coordinates = append(coordinates, aCoordinate)
 			}
 		}
-
 	}
 
 	return coordinates
@@ -240,5 +346,59 @@ func (g *Grid) collectElementsLeftOfPosition(x int, y int) []int {
 	}
 
 	return data
+
+}
+
+func PrettyPrint(coordinates []*Coordinate) {
+
+	minX, minY, maxX, maxY := Boundaries(coordinates)
+
+	xAdjustment := 0
+	if minX < 0 {
+		xAdjustment = AbsInt(minX)
+	}
+
+	yAdjustment := 0
+	if minY < 0 {
+		yAdjustment = AbsInt(minY)
+	}
+
+	data := make([][]string, maxX+10+xAdjustment)
+	for x, _ := range data {
+		data[x] = make([]string, maxY+10+yAdjustment)
+	}
+
+	for _, aCoordinate := range coordinates {
+		if aCoordinate.Value == nil {
+			aCoordinate.Value = ""
+		}
+		newX := aCoordinate.X + xAdjustment
+		newY := aCoordinate.Y + yAdjustment
+
+		value, err := strconv.Atoi(data[newY][newX])
+		if err == nil {
+
+			coordinateValue, _ := strconv.Atoi(fmt.Sprintf("%v", aCoordinate.Value))
+			if value < coordinateValue {
+
+			} else {
+				data[newY][newX] = fmt.Sprintf("%s", aCoordinate.Value)
+			}
+
+		} else {
+			data[newY][newX] = fmt.Sprintf("%s", aCoordinate.Value)
+		}
+
+	}
+
+	for _, row := range data {
+		for _, column := range row {
+			if column == "" {
+				column = "."
+			}
+			fmt.Printf("%s", column)
+		}
+		fmt.Printf("\n")
+	}
 
 }
