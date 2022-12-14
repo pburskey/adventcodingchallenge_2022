@@ -20,7 +20,14 @@ func TestSolutionPart2WithSampleDataFile(t *testing.T) {
 			args: args{
 				fileName: "data_test.txt",
 			},
-			want: 16,
+			want: 9,
+		},
+		{
+			name: "Sunny Day 2",
+			args: args{
+				fileName: "data_test_2.txt",
+			},
+			want: 1,
 		},
 	}
 	for _, tt := range tests {

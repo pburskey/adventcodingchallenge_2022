@@ -1,10 +1,52 @@
 package utility
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Coordinate struct {
-	X int
-	Y int
+	X     int
+	Y     int
+	Value interface{}
+}
+
+func (c *Coordinate) IsAdjacent(another *Coordinate) bool {
+	adjacent := false
+	xDifference := AbsDiffInt(c.X, another.X)
+	yDifference := AbsDiffInt(c.Y, another.Y)
+
+	adjacent = xDifference <= 1 && yDifference <= 1
+
+	return adjacent
+}
+
+func (c *Coordinate) IsInSamePositionAs(other *Coordinate) bool {
+	same := false
+	if other != nil {
+		same = c.X == other.X && c.Y == other.Y
+	}
+	return same
+}
+
+func Boundaries(coordinates []*Coordinate) (minX int, minY int, maxX int, maxY int) {
+	for _, aCoordinate := range coordinates {
+		if aCoordinate.X > maxX {
+			maxX = aCoordinate.X
+		}
+		if aCoordinate.X < minX {
+			minX = aCoordinate.X
+		}
+
+		if aCoordinate.Y > maxY {
+			maxY = aCoordinate.Y
+		}
+		if aCoordinate.Y < minY {
+			minY = aCoordinate.Y
+		}
+
+	}
+	return
 }
 
 type CoordinateRange struct {
@@ -240,5 +282,63 @@ func (g *Grid) collectElementsLeftOfPosition(x int, y int) []int {
 	}
 
 	return data
+
+}
+
+func PrettyPrint(coordinates []*Coordinate) {
+
+	minX, minY, maxX, maxY := Boundaries(coordinates)
+
+	xAdjustment := 0
+	if minX < 0 {
+		xAdjustment = AbsInt(minX)
+	}
+
+	yAdjustment := 0
+	if minY < 0 {
+		yAdjustment = AbsInt(minY)
+	}
+
+	data := make([][]string, maxX+2+xAdjustment)
+	for x, _ := range data {
+		data[x] = make([]string, maxY+2+yAdjustment)
+	}
+
+	for _, aCoordinate := range coordinates {
+		if aCoordinate.Value == nil {
+			aCoordinate.Value = ""
+		}
+		newX := aCoordinate.X + xAdjustment
+		newY := aCoordinate.Y + yAdjustment
+
+		value, err := strconv.Atoi(data[newX][newY])
+		if err == nil {
+
+			coordinateValue, _ := strconv.Atoi(fmt.Sprintf("%v", aCoordinate.Value))
+			if value < coordinateValue {
+
+			} else {
+				data[newX][newY] = fmt.Sprintf("%s", aCoordinate.Value)
+			}
+
+		} else {
+			data[newX][newY] = fmt.Sprintf("%s", aCoordinate.Value)
+		}
+
+	}
+
+	for x := len(data) - 1; x >= 0; x-- {
+		for y := 0; y < len(data[x]); y++ {
+			value := data[x][y]
+			if value == "" {
+				value = "."
+			}
+			if value == "0" {
+				value = "H"
+			}
+			fmt.Printf("%s", value)
+		}
+		fmt.Printf("\n")
+	}
 
 }
