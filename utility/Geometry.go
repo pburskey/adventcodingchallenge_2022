@@ -363,9 +363,9 @@ func PrettyPrint(coordinates []*Coordinate) {
 		yAdjustment = AbsInt(minY)
 	}
 
-	data := make([][]string, maxX+10+xAdjustment)
+	data := make([][]string, yAdjustment+AbsInt(maxY)+2)
 	for x, _ := range data {
-		data[x] = make([]string, maxY+10+yAdjustment)
+		data[x] = make([]string, xAdjustment+AbsInt(maxX)+2)
 	}
 
 	for _, aCoordinate := range coordinates {
@@ -379,6 +379,7 @@ func PrettyPrint(coordinates []*Coordinate) {
 		if err == nil {
 
 			coordinateValue, _ := strconv.Atoi(fmt.Sprintf("%v", aCoordinate.Value))
+
 			if value < coordinateValue {
 
 			} else {
@@ -391,7 +392,9 @@ func PrettyPrint(coordinates []*Coordinate) {
 
 	}
 
-	for _, row := range data {
+	for i := range data {
+		i = len(data) - 1 - i
+		row := data[i]
 		for _, column := range row {
 			if column == "" {
 				column = "."
