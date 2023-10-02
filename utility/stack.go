@@ -1,15 +1,15 @@
 package utility
 
-type SimpleStringStack struct {
-	stack []string
+type SimpleStack struct {
+	stack []interface{}
 }
 
-func NewSimpleStringStack() *SimpleStringStack {
-	stack := &SimpleStringStack{stack: make([]string, 0)}
+func NewSimpleStack() *SimpleStack {
+	stack := &SimpleStack{stack: make([]interface{}, 0)}
 	return stack
 }
 
-func (s *SimpleStringStack) Reverse() []string {
+func (s *SimpleStack) Reverse() []interface{} {
 	inputLen := len(s.stack)
 	inputMid := inputLen / 2
 
@@ -21,23 +21,23 @@ func (s *SimpleStringStack) Reverse() []string {
 	return s.stack
 }
 
-func (s *SimpleStringStack) Push(aString string) {
-	s.stack = append(s.stack, aString)
+func (s *SimpleStack) Push(item interface{}) {
+	s.stack = append(s.stack, item)
 }
 
-func (s *SimpleStringStack) HasMore() bool {
+func (s *SimpleStack) HasMore() bool {
 	return len(s.stack) > 0
 }
 
-func (s *SimpleStringStack) Pop() string {
+func (s *SimpleStack) Pop() interface{} {
 	index := len(s.stack) - 1
-	aString := s.stack[index]
+	item := s.stack[index]
 	s.stack = s.stack[:index]
-	return aString
+	return item
 }
 
-func (s *SimpleStringStack) Peek() string {
+func (s *SimpleStack) Peek() interface{} {
 	index := len(s.stack) - 1
-	aString := s.stack[index]
-	return aString
+	item := s.stack[index]
+	return item
 }
