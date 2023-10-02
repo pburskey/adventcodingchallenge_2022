@@ -2,6 +2,7 @@ package main
 
 import (
 	"adventcodingchallenge_2022/utility"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -28,6 +29,72 @@ type ProgramStep struct {
 	input       interface{}
 	cyclesSpent int
 	processed   bool
+}
+
+type CRT struct {
+	cycles []int
+	rows   []*CRTRow
+}
+
+type CRTRow struct {
+	pixels     []string
+	startCycle int
+	endCycle   int
+}
+
+func (me *CRT) addPixel(cycle int, value int) *CRTRow {
+	var crtRow *CRTRow
+	if me.rows == nil || len(me.rows) == 0 || me.rows[len(me.rows)-1].render() {
+		crtRow = &CRTRow{
+			pixels:     make([]string, 40),
+			startCycle: cycle + 1,
+			endCycle:   cycle + 40,
+		}
+		me.rows = append(me.rows, crtRow)
+	} else {
+		crtRow = me.rows[len(me.rows)-1]
+	}
+	crtRow.addPixel(cycle, value)
+	return crtRow
+}
+
+func (me *CRTRow) addPixel(cycle int, value int) {
+	index := cycle % 40
+
+	floor := index - 1
+	ceiling := index + 1
+
+	draw := (value >= floor && value <= ceiling)
+	if draw {
+		me.pixels[index] = "#"
+	} else {
+		me.pixels[index] = "."
+	}
+
+}
+
+func (me *CRTRow) render() bool {
+	render := false
+	if me.pixels[len(me.pixels)-1] != "" {
+		fmt.Printf("Cycle %4d ->", me.startCycle)
+		fmt.Print(" ")
+		for _, aPixel := range me.pixels {
+			fmt.Printf("%s", aPixel)
+		}
+		fmt.Print(" ")
+		fmt.Printf("<- Cycle %4d", me.endCycle)
+		fmt.Print("\n")
+		render = true
+	}
+	return render
+
+}
+
+func (me *CRT) render() {
+
+	for cycleIndex, aCycleRegisterValue := range me.cycles {
+		me.addPixel(cycleIndex, aCycleRegisterValue)
+	}
 }
 
 func (p *ProgramStep) execute() bool {
