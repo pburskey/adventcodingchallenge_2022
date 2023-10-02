@@ -15,19 +15,26 @@ func TestSolutionPart1WithSampleDataFile(t *testing.T) {
 		args args
 		want interface{}
 	}{
+		{
+			name: "Part 1 Test",
+			args: args{
+				fileName: "data_test.txt",
+			},
+			want: 13140,
+		},
 		//{
-		//	name: "Part 1 Test",
+		//	name: "Part 1 Test Small",
 		//	args: args{
-		//		fileName: "data_test.txt",
+		//		fileName: "data_test_a.txt",
 		//	},
-		//	want: 13140,
+		//	want: 154,
 		//},
 		{
-			name: "Part 1 Test Small",
+			name: "Part 1 Solution",
 			args: args{
-				fileName: "data_test_a.txt",
+				fileName: "input.txt",
 			},
-			want: 154,
+			want: 16060,
 		},
 	}
 	for _, tt := range tests {

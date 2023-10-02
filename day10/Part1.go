@@ -125,6 +125,10 @@ func (me *InstructionSet) start() *ProgramStep {
 
 func (me *InstructionSet) during(currentInstruction *ProgramStep) {
 	me.cycles = append(me.cycles, me.register)
+	if currentInstruction != nil {
+		currentInstruction.cyclesSpent++
+	}
+
 }
 
 func (me *InstructionSet) finish(currentInstruction *ProgramStep) {
@@ -141,7 +145,7 @@ func (me *InstructionSet) finish(currentInstruction *ProgramStep) {
 			}
 			currentInstruction.processed = true
 		}
-		currentInstruction.cyclesSpent++
+
 	}
 
 }
