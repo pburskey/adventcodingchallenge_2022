@@ -16,7 +16,8 @@ type Item struct {
 }
 
 type MonkeyContainer struct {
-	monkeys []*Monkey
+	monkeys         []*Monkey
+	common_multiple int
 }
 
 func (c *MonkeyContainer) getMonkeyHavingId(id int) *Monkey {
@@ -117,6 +118,10 @@ func (m *Monkey) considerItem(container *MonkeyContainer, index int, item *Item)
 		relief = float64((item.levelOfWorry / 3))
 		relief = math.Floor(relief)
 		item.levelOfWorry = int(relief)
+	} else {
+		var relief float64
+		relief = math.Mod(float64(item.levelOfWorry), float64(container.common_multiple))
+		item.levelOfWorry = int(relief)
 	}
 
 	nextMonkeyId := m.testWorryLevel(index, item)
@@ -151,7 +156,7 @@ func (m *Monkey) throwToMonkey(monkeys *MonkeyContainer, monkeyNumber int) {
 
 func parseCommands(data []string, considerRelief bool) *MonkeyContainer {
 
-	container := &MonkeyContainer{monkeys: make([]*Monkey, 0)}
+	container := &MonkeyContainer{monkeys: make([]*Monkey, 0), common_multiple: 1}
 	var monkey *Monkey
 	for _, aRow := range data {
 
@@ -199,6 +204,11 @@ func parseCommands(data []string, considerRelief bool) *MonkeyContainer {
 			monkey.test.monkeyRecipientIfFalse = aValue
 		}
 	}
+
+	for _, monkey := range container.monkeys {
+		container.common_multiple = container.common_multiple * monkey.test.testValue
+	}
+
 	return container
 }
 
