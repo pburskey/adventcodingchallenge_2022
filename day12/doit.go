@@ -30,7 +30,7 @@ func solution_part_a(data []string) (error, interface{}) {
 }
 
 func solution_part_b(data []string) (error, interface{}) {
-	algorithm := &Part2{segments: 10}
+	algorithm := &Part2{}
 	_, solution := algorithm.Process(data)
 	return nil, solution
 
