@@ -1,20 +1,75 @@
 package main
 
 import (
+	"adventcodingchallenge_2022/utility"
 	"fmt"
+	"sort"
 )
 
 var CONST_A, CONST_Z, CONST_S, CONST_E int
 
 type Configuration struct {
-	start     int
-	end       int
+	start     string
+	end       string
 	startCell *Cell
 	endCell   *Cell
+	matrix    *AdjacencyMatrix
+}
+
+func (me *Configuration) isNavigable(currentCell *Cell, targetCell *Cell, currentPath *utility.SimpleStack) bool {
+
+	ok := false
+	if currentPath != nil && currentPath.Contains(targetCell) {
+		ok = false
+	} else {
+		currentHeight := 0
+		targetHeight := me.letterAsInt(targetCell.z)
+
+		if currentCell.z == "S" {
+			currentHeight = me.letterAsInt("a")
+		} else {
+			currentHeight = me.letterAsInt(currentCell.z)
+		}
+
+		/*
+			same height
+		*/
+
+		/*
+			current height + 1 is target height
+		*/
+
+		/*
+			target height is less than the current height
+		*/
+
+		if currentHeight == targetHeight {
+			ok = true
+		} else if (currentHeight + 1) == targetHeight {
+			ok = true
+		} else if targetHeight < currentHeight {
+			if targetCell.id == "S" {
+				ok = false
+			} else {
+				ok = true
+			}
+
+		}
+	}
+
+	return ok
 }
 
 type NodeList struct {
 	nodes map[string]*Cell
+}
+
+func (me *NodeList) gather() []*Cell {
+	values := make([]*Cell, 0)
+	for _, aValue := range me.nodes {
+		values = append(values, aValue)
+	}
+	return values
 }
 
 func (me *NodeList) add(cell *Cell) {
@@ -25,6 +80,63 @@ type AdjacencyMatrix struct {
 	//cells               [][]interface{}
 	//cellsCrossReference map[string]int
 	nodeListMap map[string]*NodeList
+}
+
+type Node struct {
+	node  *Cell
+	nodes []*Node
+}
+
+func (me *AdjacencyMatrix) prepareForBFS(node *Cell, isNavigable func(*Cell, *Cell) bool, sortNodes func([]*Cell) []*Cell) *Node {
+
+	queue := utility.NewSimpleQueue()
+	visited := make(map[string]*Node)
+
+	visited[node.id] = &Node{
+		nodes: make([]*Node, 0),
+		node:  node,
+	}
+
+	graph := visited[node.id]
+	if graph != nil {
+
+	}
+	queue.Enqueue(node)
+
+	for !queue.IsEmpty() {
+
+		if ok, temp := queue.Dequeue(); ok {
+			node = temp.(*Cell)
+
+		}
+
+		nodeList := me.nodeListMap[node.id]
+		if nodeList != nil {
+			nodes := sortNodes(nodeList.gather())
+			for _, aChildNode := range nodes {
+				if aChildNode != nil && isNavigable(node, aChildNode) {
+
+					var visitedChildNode *Node
+					if _, ok := visited[aChildNode.id]; !ok {
+						visitedChildNode = &Node{
+							nodes: make([]*Node, 0),
+							node:  aChildNode,
+						}
+						visited[aChildNode.id] = visitedChildNode
+
+						visited[node.id].nodes = append(visited[node.id].nodes, visitedChildNode)
+						queue.Enqueue(aChildNode)
+
+					} else {
+						visitedChildNode = visited[aChildNode.id]
+					}
+
+				}
+			}
+		}
+
+	}
+	return graph
 }
 
 func (me *AdjacencyMatrix) label(y, x int) string {
@@ -82,18 +194,49 @@ func (me *Configuration) LoadStartAndEnd(aGrid *Grid) {
 	}
 }
 
-func (me *Configuration) nextHeightFrom(aCell *Cell) int {
-	targetHeight := 0
-	if aCell.z == me.letterAsInt('S') {
-		targetHeight = me.letterAsInt('a')
-	} else {
-		targetHeight = aCell.z + 1
-	}
-	return targetHeight
+func (me *Configuration) letterAsInt(aString string) int {
+	anInt := 0
+	runes := []rune(aString)
+	anInt = me.runeAsInt(runes[0])
+	return anInt
 }
 
-func (me *Configuration) letterAsInt(aRune rune) int {
-	return int(aRune - '0')
+func runeAsInt(aRune rune) int {
+	return int(aRune)
+}
+
+func intAsLetter(aNumber int) string {
+	var aString string
+	aString = string(rune(aNumber))
+	return aString
+}
+
+func letterAsInt(aString string) int {
+	anInt := 0
+	runes := []rune(aString)
+	anInt = runeAsInt(runes[0])
+	return anInt
+}
+
+func (me *Configuration) runeAsInt(aRune rune) int {
+	return int(aRune)
+}
+
+func (me *Configuration) intAsLetter(aNumber int) string {
+	var aString string
+	aString = string(rune(aNumber))
+	return aString
+}
+
+func (me *Configuration) shortestBFS() *utility.SimpleStack {
+	visited := utility.NewSimpleStack()
+	queue := utility.NewSimpleQueue()
+	shortest := me.bfs(me.startCell, me.endCell, visited, queue)
+
+	if !queue.IsEmpty() || shortest == nil {
+		panic("not a clue")
+	}
+	return shortest
 }
 
 type Grid struct {
@@ -125,11 +268,14 @@ type CellPathFrom struct {
 }
 
 type Cell struct {
-	x         int
-	y         int
-	z         int
-	id        string
-	neighbors []*Cell
+	x  int
+	y  int
+	z  string
+	id string
+}
+type Traversal struct {
+	current *Cell
+	stack   *utility.SimpleStack
 }
 
 func cellAtYAndXOrNil(y, x int, cells [][]*Cell) *Cell {
@@ -177,4 +323,52 @@ func (me *Cell) Neighbors(aGrid *Grid) []*Cell {
 	neighbors[3] = cellAtYAndXOrNil(y, x, aGrid.cells)
 
 	return neighbors
+}
+
+func sortCellsAscending(cells []*Cell) []*Cell {
+	sort.Slice(cells, func(i, j int) bool {
+		return cells[i].z < cells[j].z
+	})
+	return cells
+}
+
+func next(sourceCell *Cell, targetCell *Cell) bool {
+
+	ok := false
+
+	currentHeight := 0
+	targetHeight := letterAsInt(targetCell.z)
+
+	if sourceCell.z == "S" {
+		currentHeight = letterAsInt("a")
+	} else {
+		currentHeight = letterAsInt(sourceCell.z)
+	}
+
+	/*
+		same height
+	*/
+
+	/*
+		current height + 1 is target height
+	*/
+
+	/*
+		target height is less than the current height
+	*/
+
+	if currentHeight == targetHeight {
+		ok = true
+	} else if (currentHeight + 1) == targetHeight {
+		ok = true
+	} else if targetHeight < currentHeight {
+		if targetCell.id == "S" {
+			ok = false
+		} else {
+			ok = true
+		}
+
+	}
+
+	return ok
 }

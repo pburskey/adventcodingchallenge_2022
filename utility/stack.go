@@ -41,3 +41,38 @@ func (s *SimpleStack) Peek() interface{} {
 	item := s.stack[index]
 	return item
 }
+
+func (s *SimpleStack) Contains(item interface{}) bool {
+	itDoes := false
+	for i := 0; !itDoes && i < len(s.stack); i++ {
+		candidateItem := s.stack[i]
+		itDoes = candidateItem == item
+	}
+	return itDoes
+}
+
+func (s *SimpleStack) Remove(item interface{}) {
+	for i := 0; i < len(s.stack); i++ {
+		candidateItem := s.stack[i]
+		if candidateItem == item {
+			s.stack[i] = nil
+		}
+	}
+}
+
+func (s *SimpleStack) Copy() *SimpleStack {
+	newStack := NewSimpleStack()
+	for i := 0; i < len(s.stack); i++ {
+		candidateItem := s.stack[i]
+		newStack.Push(candidateItem)
+	}
+	return newStack
+}
+
+func (s *SimpleStack) Size() int {
+	return len(s.stack)
+}
+
+func (s *SimpleStack) Items() []interface{} {
+	return s.stack
+}

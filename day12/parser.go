@@ -21,8 +21,9 @@ func parseCommands(data []string, grid *Grid) *Grid {
 			grid.cells = append(grid.cells, make([]*Cell, 0))
 			for x, xdata := range ydata {
 
-				runes := []rune(xdata)
-				height := int(runes[0] - '0')
+				//runes := []rune(xdata)
+				//height := int(runes[0] - '0')
+				height := xdata
 				//guid := uuid.New()
 				aCell := &Cell{
 					x:  x,
