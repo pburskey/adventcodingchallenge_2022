@@ -30,3 +30,7 @@ func (s *SimpleQueue) Dequeue() (ok bool, element interface{}) {
 func (s *SimpleQueue) IsEmpty() bool {
 	return len(s.queue) == 0
 }
+
+func (s *SimpleQueue) HasMore() bool {
+	return !s.IsEmpty()
+}

@@ -26,11 +26,18 @@ func (alg *Part1) Process(data []string) (error, interface{}) {
 	}
 	configuration.LoadStartAndEnd(grid)
 
-	matrix.prepareForBFS(configuration.startCell, next, sortCellsAscending)
+	bfs := &BFS{
+		matrix:      matrix,
+		isNavigable: next,
+		sortNodes:   sortCellsDescending,
+	}
 
-	configuration.bfs2(configuration.startCell)
+	bfs.prepare(configuration.startCell)
+	shortestStack := bfs.shortest(configuration.endCell)
+
+	//configuration.bfs2(configuration.startCell)
 	//shortestStack := configuration.shortestBFS()
-	//alg.answer = shortestStack.Size()
+	alg.answer = shortestStack.Size()
 	return nil, alg.answer
 }
 

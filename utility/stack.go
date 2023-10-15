@@ -76,3 +76,7 @@ func (s *SimpleStack) Size() int {
 func (s *SimpleStack) Items() []interface{} {
 	return s.stack
 }
+
+func (s *SimpleStack) IsEmpty() bool {
+	return s.Size() == 0
+}

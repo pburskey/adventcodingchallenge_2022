@@ -3,7 +3,6 @@ package main
 import (
 	"adventcodingchallenge_2022/utility"
 	"fmt"
-	"sort"
 )
 
 var CONST_A, CONST_Z, CONST_S, CONST_E int
@@ -87,56 +86,15 @@ type Node struct {
 	nodes []*Node
 }
 
-func (me *AdjacencyMatrix) prepareForBFS(node *Cell, isNavigable func(*Cell, *Cell) bool, sortNodes func([]*Cell) []*Cell) *Node {
-
-	queue := utility.NewSimpleQueue()
-	visited := make(map[string]*Node)
-
-	visited[node.id] = &Node{
-		nodes: make([]*Node, 0),
-		node:  node,
-	}
-
-	graph := visited[node.id]
-	if graph != nil {
-
-	}
-	queue.Enqueue(node)
-
-	for !queue.IsEmpty() {
-
-		if ok, temp := queue.Dequeue(); ok {
-			node = temp.(*Cell)
-
+func (me *Node) containsChildNode(node *Node) bool {
+	itDoes := false
+	for _, aChildNode := range me.nodes {
+		if aChildNode.node.id == node.node.id {
+			itDoes = true
+			break
 		}
-
-		nodeList := me.nodeListMap[node.id]
-		if nodeList != nil {
-			nodes := sortNodes(nodeList.gather())
-			for _, aChildNode := range nodes {
-				if aChildNode != nil && isNavigable(node, aChildNode) {
-
-					var visitedChildNode *Node
-					if _, ok := visited[aChildNode.id]; !ok {
-						visitedChildNode = &Node{
-							nodes: make([]*Node, 0),
-							node:  aChildNode,
-						}
-						visited[aChildNode.id] = visitedChildNode
-
-						visited[node.id].nodes = append(visited[node.id].nodes, visitedChildNode)
-						queue.Enqueue(aChildNode)
-
-					} else {
-						visitedChildNode = visited[aChildNode.id]
-					}
-
-				}
-			}
-		}
-
 	}
-	return graph
+	return itDoes
 }
 
 func (me *AdjacencyMatrix) label(y, x int) string {
@@ -253,29 +211,11 @@ func (me *Grid) area() int {
 	return area
 }
 
-type CompleteGraph struct {
-	cells [][]*CellPathFrom
-}
-
-func (me *CompleteGraph) load(grid *Grid) {
-
-}
-
-type CellPathFrom struct {
-	cell              *Cell
-	nextNeighbors     []*Cell
-	previousNeighbors []*Cell
-}
-
 type Cell struct {
 	x  int
 	y  int
 	z  string
 	id string
-}
-type Traversal struct {
-	current *Cell
-	stack   *utility.SimpleStack
 }
 
 func cellAtYAndXOrNil(y, x int, cells [][]*Cell) *Cell {
@@ -323,13 +263,6 @@ func (me *Cell) Neighbors(aGrid *Grid) []*Cell {
 	neighbors[3] = cellAtYAndXOrNil(y, x, aGrid.cells)
 
 	return neighbors
-}
-
-func sortCellsAscending(cells []*Cell) []*Cell {
-	sort.Slice(cells, func(i, j int) bool {
-		return cells[i].z < cells[j].z
-	})
-	return cells
 }
 
 func next(sourceCell *Cell, targetCell *Cell) bool {
